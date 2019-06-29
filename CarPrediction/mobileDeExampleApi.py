@@ -73,17 +73,6 @@ def createPriceColumn(Y):
     price = Y
     return price
 
-
-def responsPriceInterval(X):
-    if (X == 1):
-        return '< 10000'
-    elif (X == 2):
-        return '10000-20000'
-    elif (X == 3):
-        return '20000-35000'
-    elif (X == 4):
-        return '>35000'
-
 def fitTheColumns(dataFrame):
     dataFrame['ModelCategory'] = dataFrame['Model'].apply(createModelColumn)
     dataFrame['YearCategory'] = dataFrame['Year'].apply(createYearColumn)
@@ -107,6 +96,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn import metrics
+import statistics
 import numpy as np
 import category_encoders as ce
 
@@ -117,9 +107,6 @@ def trainTheData(dataFrame):
     Y = dataFrame['Price']
 
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=int(time.time()))
-    used_features = ['Model', 'Year', 'HorsePower', 'Fuel', 'Transmission', 'Mileage']
-
-    # gnb = GradientBoostingClassifier()
 
     regressor = GradientBoostingRegressor()
     regressor.fit(X_train, Y_train)
@@ -131,10 +118,15 @@ def trainTheData(dataFrame):
     df1 = df.head(25)
     print(df1)
 
+    theMean = statistics.mean(Y_test)
+    theRootMeanSquaredError = np.sqrt(metrics.mean_squared_error(Y_test, y_pred))
+
+    print('Mean', theMean)
     print('R2 score:', metrics.r2_score(Y_test, y_pred))
     print('Mean Absolute Error:', metrics.mean_absolute_error(Y_test, y_pred))
     print('Mean Squared Error:', metrics.mean_squared_error(Y_test, y_pred))
-    print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(Y_test, y_pred)))
+    print('Root Mean Squared Error:', theRootMeanSquaredError)
+    print('Percentage of error: ', (theRootMeanSquaredError * 100) / theMean, ' %')
     return regressor
 
 dataFrameSeria3 = fitTheColumns(sfSeria3)
@@ -145,15 +137,6 @@ seria3Regressor = trainTheData(dataFrameSeria3)
 seria5Regressor = trainTheData(dataFrameSeria5)
 seria7Regressor = trainTheData(dataFrameSeria7)
 
-# gnb.fit(X_train, Y_train)
-# y_pred = gnb.predict(X_test)
-
-# print("Number of mislabeled points out of a total {} points : {}, performance {:05.2f}%"
-#     .format(
-#     X_test.shape[0],
-#     (Y_test != y_pred).sum(),
-#     100 * (1 - (Y_test != y_pred).sum() / X_test.shape[0])
-# ))
 
 ################# API ################
 from flask import Flask
