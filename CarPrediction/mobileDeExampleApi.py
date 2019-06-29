@@ -38,17 +38,6 @@ def createYearColumn(X):
 
 def createHorsePowerColumn(X):
     return X
-    # horsePower = X;
-    #
-    # if (horsePower < 184):
-    #     return 1
-    # elif (horsePower >= 184 and horsePower < 245):
-    #     return 2
-    # elif (horsePower >= 245 and horsePower < 286):
-    #     return 3
-    # elif (horsePower >= 286):
-    #     return 4
-
 
 def createFuelColumn(X):
     if (X == 'Benzina'):
@@ -58,9 +47,9 @@ def createFuelColumn(X):
 
 
 def createTransmisionColumn(X):
-    if (X == 'automata'):
+    if (X.lower() == 'automata'):
         return 1
-    elif (X == 'manuala'):
+    elif (X.lower() == 'manuala'):
         return 2
 
 
@@ -165,10 +154,10 @@ class PricePrediction(Resource):
             result = seria3Regressor.predict(
                 [[
                     createModelColumn(args['Model']),
-                    (args['Year']),
-                    args['HorsePower'],
+                    int(args['Year']),
+                    int(args['HorsePower']),
                     createFuelColumn(args['Fuel']),
-                    args['Mileage'],
+                    int(args['Mileage']),
                     createTransmisionColumn(args['Transmission'])
                 ]]
             )
@@ -176,10 +165,10 @@ class PricePrediction(Resource):
             result = seria5Regressor.predict(
                 [[
                     createModelColumn(args['Model']),
-                    (args['Year']),
-                    args['HorsePower'],
+                    int(args['Year']),
+                    int(args['HorsePower']),
                     createFuelColumn(args['Fuel']),
-                    args['Mileage'],
+                    int(args['Mileage']),
                     createTransmisionColumn(args['Transmission'])
                 ]]
             )
@@ -187,10 +176,10 @@ class PricePrediction(Resource):
             result = seria7Regressor.predict(
                 [[
                     createModelColumn(args['Model']),
-                    (args['Year']),
-                    args['HorsePower'],
+                    int(args['Year']),
+                    int(args['HorsePower']),
                     createFuelColumn(args['Fuel']),
-                    args['Mileage'],
+                    int(args['Mileage']),
                     createTransmisionColumn(args['Transmission'])
                 ]]
             )
