@@ -91,6 +91,11 @@ import category_encoders as ce
 
 import time
 
+mean = [2]
+R2score = [2]
+RMSE = [2]
+Error = [2]
+
 def trainTheData(dataFrame):
     X = dataFrame[['Model', 'Year', 'HorsePower', 'Fuel', 'Mileage', 'Transmission']]
     Y = dataFrame['Price']
@@ -109,13 +114,20 @@ def trainTheData(dataFrame):
 
     theMean = statistics.mean(Y_test)
     theRootMeanSquaredError = np.sqrt(metrics.mean_squared_error(Y_test, y_pred))
+    r2Score = metrics.r2_score(Y_test, y_pred)
+    percentageOfError = (theRootMeanSquaredError * 100) / theMean
+
+    mean.insert(model-1, theMean)
+    R2score.insert(model-1, r2Score)
+    RMSE.insert(model-1, theRootMeanSquaredError)
+    Error.insert(model-1, percentageOfError)
 
     print('Mean', theMean)
-    print('R2 score:', metrics.r2_score(Y_test, y_pred))
+    print('R2 score:', r2Score)
     print('Mean Absolute Error:', metrics.mean_absolute_error(Y_test, y_pred))
     print('Mean Squared Error:', metrics.mean_squared_error(Y_test, y_pred))
     print('Root Mean Squared Error:', theRootMeanSquaredError)
-    print('Percentage of error: ', (theRootMeanSquaredError * 100) / theMean, ' %')
+    print('Percentage of error: ', percentageOfError, ' %')
     return regressor
 
 dataFrameSeria3 = fitTheColumns(sfSeria3)
@@ -125,6 +137,8 @@ dataFrameSeria7 = fitTheColumns(sfSeria7)
 seria3Regressor = trainTheData(dataFrameSeria3)
 seria5Regressor = trainTheData(dataFrameSeria5)
 seria7Regressor = trainTheData(dataFrameSeria7)
+
+#print(100 * seria3Regressor.feature_importances_/seria3Regressor.feature_importances_.max())
 
 
 ################# API ################
@@ -193,7 +207,23 @@ class PricePrediction(Resource):
 
         return responseBody, 200
 
+class DataModelStatistics(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('Model')
+        args = parser.parse_args()
+        index = createModelColumn(args['Model']) - 1
+
+        responseBody = {
+            "Mean": f"{mean[index]}",
+            "RMSE": f"{RMSE[index]}",
+            "R2Score": f"{R2score[index]}",
+            "Error": f"{Error[index]}",
+        }
+
+        return responseBody, 200
 
 api.add_resource(PricePrediction, "/price")
+api.add_resource(DataModelStatistics, "/statistics")
 
 app.run(debug=True, port=5000)
